@@ -1,0 +1,74 @@
+{
+    "variables" : {
+	"ssh_username" : "root",
+	"ssh_password" : "VMware1!VMware1!",
+	"shutdown_timeout" : "5m",
+	"iso_url" : "http://ftp.iij.ad.jp/pub/linux/centos/8/isos/x86_64/CentOS-8.1.1911-x86_64-dvd1.iso",
+	"iso_checksum_type" : "none",
+	"iso_checksum" : "3ee3f4ea1538e026fff763e2b284a6f20b259d91d1ad5688f5783a67d279423b",
+	"disk_size_mb" : "30000",
+	"cpus" : "2",
+	"memory_mb" : "2048",
+	"vmware_network_adapter_type" : "E1000",
+	"vmware_format" : "ova",
+	"kickstart_file" : "ks.cfg",
+	"boot_command_inst_ks" : "http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{ user `kickstart_file` }}",
+	"boot_command" : "<tab> text=1 inst.ks={{ user `boot_command_inst_ks` }} geoloc=0 rd.live.check=0 inst.sshd=1 rd.live.ram=1 <enter><wait>"
+    },
+    "builders": [
+	{
+	    "type": "virtualbox-iso",
+	    "name": "virtualbox",
+	    "guest_os_type": "RedHat_64",
+	    "iso_url": "{{ user `iso_url` }}",
+	    "iso_checksum" : "{{ user `iso_checksum` }}",
+	    "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+	    "disk_size": "{{ user `disk_size_mb` }}",
+	    "ssh_username": "{{ user `ssh_username` }}",
+	    "ssh_password": "{{ user `ssh_password` }}",
+	    "ssh_timeout" : "20m",
+	    "shutdown_command": "/sbin/shutdown -h now",
+	    "shutdown_timeout" : "{{ user `shutdown_timeout` }}",
+	    "http_directory" : "./kickstart/",
+	    "boot_wait": "5s",
+	    "boot_command": [
+			"{{ user `boot_command` }}"
+	    ],
+	    "vboxmanage": [
+		["modifyvm", "{{.Name}}", "--memory", "{{ user `memory_mb` }}"],
+		["modifyvm", "{{.Name}}", "--cpus", "{{ user `cpus` }}"],
+		["modifyvm", "{{.Name}}", "--graphicscontroller", "VMSVGA"]
+	    ]
+	},
+		{
+	    "type": "vmware-iso",
+	    "name": "vmware",
+	    "guest_os_type": "centos7-64",
+	    "iso_url": "{{ user `iso_url` }}",
+	    "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+	    "disk_adapter_type": "scsi",
+	    "disk_size": "{{ user `disk_size_mb` }}",
+	    "disk_type_id" : 0,
+	    "cdrom_adapter_type" : "scsi",
+	    "cpus" : "{{ user `cpus` }}",
+	    "memory" : "{{ user `memory_mb` }}",
+	    "network_adapter_type" : "{{ user `vmware_network_adapter_type` }}",
+	    "version" : 13,
+	    "ssh_username": "{{ user `ssh_username` }}",
+	    "ssh_password": "{{ user `ssh_password` }}",
+	    "shutdown_command": "/sbin/shutdown -h now",
+	    "shutdown_timeout" : "{{ user `shutdown_timeout` }}",
+	    "http_directory" : "./kickstart/",
+	    "boot_wait": "5s",
+	    "boot_command": [
+			"{{ user `boot_command` }}"
+	    ],
+	    "ovftool_options" : "{{ user `vmware_format` }}",
+	    "vnc_bind_address" : "0.0.0.0",
+	    "vnc_port_min" : "5900",
+	    "vnc_port_max" : "5900",
+	    "vnc_disable_password" : true
+	}
+]
+}
+
