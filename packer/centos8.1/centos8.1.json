@@ -13,7 +13,7 @@
 	"vmware_format" : "ova",
 	"kickstart_file" : "ks.cfg",
 	"boot_command_inst_ks" : "http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{ user `kickstart_file` }}",
-	"boot_command" : "<tab> text=1 inst.ks={{ user `boot_command_inst_ks` }} geoloc=0 rd.live.check=0 inst.sshd=1 rd.live.ram=1 <enter><wait>"
+	"boot_command" : "text=1 inst.ks={{ user `boot_command_inst_ks` }} geoloc=0 rd.live.check=0 rd.live.ram=1 <enter><wait>"
     },
     "builders": [
 	{
@@ -32,7 +32,7 @@
 	    "http_directory" : "./kickstart/",
 	    "boot_wait": "5s",
 	    "boot_command": [
-			"{{ user `boot_command` }}"
+			"<tab> {{ user `boot_command` }}"
 	    ],
 	    "vboxmanage": [
 		["modifyvm", "{{.Name}}", "--memory", "{{ user `memory_mb` }}"],
@@ -61,7 +61,7 @@
 	    "http_directory" : "./kickstart/",
 	    "boot_wait": "5s",
 	    "boot_command": [
-			"{{ user `boot_command` }}"
+			"<tab> inst.sshd=1 {{ user `boot_command` }}"
 	    ],
 	    "ovftool_options" : "{{ user `vmware_format` }}",
 	    "vnc_bind_address" : "0.0.0.0",
